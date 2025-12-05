@@ -1,0 +1,10 @@
+
+> ui-portal@1.0.0 dev
+> next dev
+
+ ÔÜá Port 3000 is in use, trying 3001 instead.
+   Ôû▓ Next.js 14.0.4
+   - Local:        http://localhost:3001
+   - Environments: .env.local, .env
+
+ Ô£ô Ready in 1890ms

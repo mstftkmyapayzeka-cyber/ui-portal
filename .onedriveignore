@@ -1,0 +1,10 @@
+# OneDrive should not sync these folders
+.next/
+node_modules/
+out/
+build/
+dist/
+*.log
+.env*
+
+

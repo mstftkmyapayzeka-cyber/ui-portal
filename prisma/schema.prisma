@@ -1,0 +1,174 @@
+// Prisma Schema - Uluslararası İlişkiler Portalı
+// SQLite için tasarlanmış, PostgreSQL'e geçişe uygun
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+// =============================================
+// Admin Kullanıcı Modeli
+// =============================================
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// =============================================
+// Makale Modeli (Günün Makaleleri)
+// =============================================
+model Article {
+  id          String   @id @default(uuid())
+  title       String
+  authors     String   // Virgülle ayrılmış yazarlar
+  journalOrBook String? // Dergi veya kitap adı
+  year        Int?
+  summary     String   // Kısa özet
+  tags        String   // JSON string olarak etiketler ["tag1", "tag2"]
+  externalUrl String?  // Dış link
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([published])
+  @@index([createdAt])
+}
+
+// =============================================
+// Haber/Güncel Gelişme Modeli
+// =============================================
+model NewsItem {
+  id                String    @id @default(uuid())
+  title             String
+  description       String
+  region            String    // Avrupa, Orta Doğu, Asya-Pasifik, Amerika, Afrika, vb.
+  category          String    // Güvenlik, Ekonomi, Diplomasi, vb.
+  tags              String    // JSON string
+  publishedAt       DateTime  @default(now())
+  relatedAnalysisId String?   // İlgili analiz ID
+  relatedAnalysis   Analysis? @relation(fields: [relatedAnalysisId], references: [id], onDelete: SetNull)
+  published         Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([published])
+  @@index([region])
+  @@index([category])
+  @@index([publishedAt])
+}
+
+// =============================================
+// Analiz Modeli (Konu Konu Önemli Analizler)
+// =============================================
+model Analysis {
+  id                 String     @id @default(uuid())
+  title              String
+  shortSummary       String     // Kısa özet
+  content            String     // Uzun içerik (markdown destekli)
+  author             String
+  readingTimeMinutes Int        @default(5)
+  categories         String     // JSON string ["Güvenlik Çalışmaları", "Uluslararası Örgütler"]
+  tags               String     // JSON string
+  publishedAt        DateTime   @default(now())
+  published          Boolean    @default(false)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  
+  relatedNews        NewsItem[]
+
+  @@index([published])
+  @@index([publishedAt])
+}
+
+// =============================================
+// Öğrenme Modülü (Uluslararası İlişkiler Öğren)
+// =============================================
+model LearningModule {
+  id                  String   @id @default(uuid())
+  title               String
+  slug                String   @unique
+  shortDescription    String
+  learningObjectives  String   // JSON array: ["Hedef 1", "Hedef 2"]
+  keyConcepts         String   // JSON array: ["Kavram 1", "Kavram 2"]
+  content             String   // Açıklayıcı metin (markdown)
+  recommendedReadings String   // JSON array: [{title, author, url}]
+  quizQuestions       String   // JSON array: [{question, options, correctIndex}]
+  orderIndex          Int      @default(0) // Müfredat sıralaması
+  published           Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([published])
+  @@index([orderIndex])
+}
+
+// =============================================
+// Podcast/Video Modeli
+// =============================================
+model Podcast {
+  id              String   @id @default(uuid())
+  title           String
+  description     String
+  durationMinutes Int      @default(0)
+  topic           String   // Ana konu
+  tags            String   // JSON string
+  videoUrl        String   // MP4 dosya yolu
+  thumbnailUrl    String?  // Thumbnail görsel yolu
+  publishedAt     DateTime @default(now())
+  featured        Boolean  @default(false) // Öne çıkan podcast
+  published       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([published])
+  @@index([featured])
+  @@index([publishedAt])
+}
+
+// =============================================
+// Kaynak/Araç Modeli
+// =============================================
+model Resource {
+  id            String   @id @default(uuid())
+  name          String
+  type          String   // Kitap, Makale, Düşünür, Araç, vb.
+  description   String
+  relatedTheory String?  // İlgili teori
+  externalUrl   String?
+  published     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([published])
+  @@index([type])
+}
+
+// =============================================
+// Kavram Modeli (Bugünün Kavramı)
+// =============================================
+model Concept {
+  id                  String   @id @default(uuid())
+  name                String
+  shortDefinition     String   // Kısa tanım (2-3 cümle)
+  detailedExplanation String?  // Detaylı açıklama
+  relatedTheory       String?  // İlgili teori
+  published           Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([published])
+}
+
+
+
+
+
+
+
